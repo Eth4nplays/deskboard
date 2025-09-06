@@ -64,7 +64,9 @@ class SpotifyService {
     request.response
       ..statusCode = 200
       ..headers.set('Content-Type', 'text/html')
-      ..write('''<html><head><title>Spotify Login</title><script type="text/javascript">setTimeout(() => window.close(), 1000);</script></head></body></html>''')
+      ..write(
+        '''<html><head><title>Spotify Login</title><script type="text/javascript">setTimeout(() => window.close(), 1000);</script></head></body></html>''',
+      )
       ..close();
 
     await server.close();
@@ -174,6 +176,90 @@ class SpotifyService {
   Future<void> pause() async {
     await _ensureToken();
     final url = Uri.parse("https://api.spotify.com/v1/me/player/pause");
+    await http.put(url, headers: {'Authorization': 'Bearer $_accessToken'});
+  }
+
+  Future<List<Map<String, dynamic>>> getUserPlaylists() async {
+    await _ensureToken();
+    final url = Uri.parse("https://api.spotify.com/v1/me/playlists?limit=50");
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $_accessToken'},
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return (data['items'] as List)
+          .map(
+            (item) => {
+              'id': item['id'],
+              'name': item['name'],
+              'owner': item['owner']['display_name'],
+              'image':
+                  (item['images'] as List).isNotEmpty
+                      ? item['images'][0]['url']
+                      : null,
+            },
+          )
+          .toList();
+    }
+
+    return [];
+  }
+
+  Future<void> playPlaylist(String playlistId) async {
+    await _ensureToken();
+    final url = Uri.parse("https://api.spotify.com/v1/me/player/play");
+    await http.put(
+      url,
+      headers: {'Authorization': 'Bearer $_accessToken'},
+      body: jsonEncode({'context_uri': 'spotify:playlist:$playlistId'}),
+    );
+  }
+
+  /// Get the current queue
+  Future<List<Map<String, dynamic>>> getQueue() async {
+    await _ensureToken();
+    final url = Uri.parse("https://api.spotify.com/v1/me/player/queue");
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $_accessToken'},
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return (data['queue'] as List)
+          .map(
+            (track) => {
+              'title': track['name'],
+              'artist': track['artists'][0]['name'],
+              'albumArt':
+                  (track['album']['images'] as List).isNotEmpty
+                      ? track['album']['images'][0]['url']
+                      : null,
+            },
+          )
+          .toList();
+    }
+
+    return [];
+  }
+
+  /// Toggle shuffle
+  Future<void> toggleShuffle(bool enable) async {
+    await _ensureToken();
+    final url = Uri.parse(
+      "https://api.spotify.com/v1/me/player/shuffle?state=$enable",
+    );
+    await http.put(url, headers: {'Authorization': 'Bearer $_accessToken'});
+  }
+
+  /// Set repeat mode: 'track', 'context', or 'off'
+  Future<void> setRepeat(String mode) async {
+    await _ensureToken();
+    final url = Uri.parse(
+      "https://api.spotify.com/v1/me/player/repeat?state=$mode",
+    );
     await http.put(url, headers: {'Authorization': 'Bearer $_accessToken'});
   }
 
