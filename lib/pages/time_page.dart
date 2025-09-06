@@ -60,7 +60,13 @@ class _FullScreenClockPageState extends State<FullScreenClockPage> {
     if (!mounted) return;
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const HomePage()),
+      MaterialPageRoute(
+        builder:
+            (_) => MouseRegion(
+              cursor: SystemMouseCursors.none,
+              child: const HomePage(),
+            ),
+      ),
     );
   }
 

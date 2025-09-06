@@ -38,7 +38,13 @@ class _HomePageState extends State<HomePage> {
     if (!mounted) return;
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => FullScreenClockPage()),
+      MaterialPageRoute(
+        builder:
+            (_) => MouseRegion(
+              cursor: SystemMouseCursors.none,
+              child: FullScreenClockPage(),
+            ),
+      ),
     );
   }
 
