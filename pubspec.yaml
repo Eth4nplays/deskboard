@@ -1,0 +1,29 @@
+name: deskboard
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  google_fonts: ^5.1.0
+  path_provider: ^2.0.15
+  intl: ^0.18.1
+  http: ^1.1.0
+  spotify_sdk: ^2.3.1
+  dbus: ^0.7.8
+  spotify: ^0.12.0
+  shared_preferences: ^2.2.1
+  flutter_web_auth_2: ^4.1.0
+  url_launcher: ^6.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

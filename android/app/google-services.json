@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "945905545683",
+    "firebase_url": "https://deskboard-1aec4-default-rtdb.firebaseio.com",
+    "project_id": "deskboard-1aec4",
+    "storage_bucket": "deskboard-1aec4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:945905545683:android:d8e65d65f117249ecc3f26",
+        "android_client_info": {
+          "package_name": "com.example.deskboard"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhCqbc7L6Zn3mMZnk6YUk4oIIECClJ3uw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
