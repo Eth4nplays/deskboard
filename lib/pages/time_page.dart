@@ -109,7 +109,7 @@ class _FullScreenClockPageState extends State<FullScreenClockPage> {
                           '$time ',
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 64,
+                            fontSize: 95,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -117,7 +117,7 @@ class _FullScreenClockPageState extends State<FullScreenClockPage> {
                           amPm,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 24,
+                            fontSize: 45,
                           ),
                         ),
                       ],
@@ -131,7 +131,7 @@ class _FullScreenClockPageState extends State<FullScreenClockPage> {
                           day,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 24,
+                            fontSize: 28,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -139,7 +139,7 @@ class _FullScreenClockPageState extends State<FullScreenClockPage> {
                           date,
                           style: const TextStyle(
                             color: Colors.white70,
-                            fontSize: 18,
+                            fontSize: 28,
                           ),
                         ),
                       ],
