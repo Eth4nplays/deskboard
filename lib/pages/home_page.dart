@@ -57,11 +57,12 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      onHover: (_) => _startInactivityTimer(),
+      cursor: SystemMouseCursors.none, // always hide
       child: Listener(
         behavior: HitTestBehavior.translucent,
         onPointerDown: (_) => _startInactivityTimer(),
         onPointerMove: (_) => _startInactivityTimer(),
+        onPointerHover: (_) => _startInactivityTimer(),
         child: Scaffold(
           body: Row(
             children: [
@@ -79,7 +80,7 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(height: 20),
                         const NavigationButtons(),
                         const SizedBox(height: 20),
-                        SpotifyPlayer(spotify: spotify), // uses same instance
+                        SpotifyPlayer(spotify: spotify),
                       ],
                     ),
                   ),
