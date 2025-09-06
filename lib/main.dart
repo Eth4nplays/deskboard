@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'pages/home_page.dart';
-import 'package:flutter/services.dart';
+import 'services/spotify_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MainApp());
+  final spotify = SpotifyService();
+  await spotify.init(); // initialize once
+
+  runApp(
+    Provider<SpotifyService>.value(value: spotify, child: const MainApp()),
+  );
 }
 
 class MainApp extends StatelessWidget {
@@ -30,7 +36,7 @@ class MainApp extends StatelessWidget {
       themeMode: ThemeMode.dark,
       home: MouseRegion(
         cursor: SystemMouseCursors.none,
-        child: Builder(builder: (context) => HomePage()),
+        child: const HomePage(), // no need to pass spotify
       ),
     );
   }

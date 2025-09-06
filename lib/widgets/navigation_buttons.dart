@@ -160,25 +160,26 @@ class NavigationButtons extends StatelessWidget {
   }
 
   void _executeONBOARD() async {
+    try {
+      ProcessResult result;
 
-      try {
-        ProcessResult result;
-
-        if (Platform.isWindows) {
-          // Use cmd for Windows
-          result = await Process.run('cmd', ['/c', 'onboard']);
-        } else {
-          // Use bash for Linux/macOS
-          result = await Process.run('bash', ['-c', 'onboard']);
-        }
-
-        print('ONBOARD Command output: ${result.stdout}');
-        print('ONBOARD Command error: ${result.stderr}');
-        print('Exit code: ${result.exitCode}');
-      } catch (e) {
-        print('Error executing AC command: $e');
+      if (Platform.isWindows) {
+        // Use cmd for Windows
+        result = await Process.run('cmd', [
+          '/c',
+          'echo onboard will open in linux build',
+        ]);
+      } else {
+        // Use bash for Linux/macOS
+        result = await Process.run('bash', ['-c', 'onboard']);
       }
-   
+
+      print('ONBOARD Command output: ${result.stdout}');
+      print('ONBOARD Command error: ${result.stderr}');
+      print('Exit code: ${result.exitCode}');
+    } catch (e) {
+      print('Error executing AC command: $e');
+    }
   }
 }
 

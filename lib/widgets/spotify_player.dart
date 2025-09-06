@@ -37,6 +37,7 @@ class _SpotifyPlayerState extends State<SpotifyPlayer> {
 
   Future<void> _loadCurrentTrack() async {
     final track = await widget.spotify.getCurrentTrack();
+    if (!mounted) return;
     setState(() {
       songTitle = track['title'];
       artistName = track['artist'];
@@ -103,8 +104,8 @@ class _SpotifyPlayerState extends State<SpotifyPlayer> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      songTitle.length > 24
-                          ? '${songTitle.substring(0, 24)}…'
+                      songTitle.length > 22
+                          ? '${songTitle.substring(0, 22)}…'
                           : songTitle,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color:
