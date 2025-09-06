@@ -10,6 +10,8 @@ class NavigationButtons extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        _NavButton(icon: Icons.keyboard, onPressed: () => _executeONBOARD()),
+        const SizedBox(width: 18),
         _NavButton(icon: Icons.ac_unit, onPressed: () => _executeACCommand()),
         const SizedBox(width: 18),
         _NavButton(
@@ -155,6 +157,28 @@ class NavigationButtons extends StatelessWidget {
     } else {
       print('No AC command set.');
     }
+  }
+
+  void _executeONBOARD() async {
+
+      try {
+        ProcessResult result;
+
+        if (Platform.isWindows) {
+          // Use cmd for Windows
+          result = await Process.run('cmd', ['/c', 'onboard']);
+        } else {
+          // Use bash for Linux/macOS
+          result = await Process.run('bash', ['-c', 'onboard']);
+        }
+
+        print('ONBOARD Command output: ${result.stdout}');
+        print('ONBOARD Command error: ${result.stderr}');
+        print('Exit code: ${result.exitCode}');
+      } catch (e) {
+        print('Error executing AC command: $e');
+      }
+   
   }
 }
 

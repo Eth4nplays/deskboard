@@ -64,7 +64,7 @@ class SpotifyService {
     request.response
       ..statusCode = 200
       ..headers.set('Content-Type', 'text/html')
-      ..write("<h2>Login successful! You can close this window.</h2>")
+      ..write('''<html><head><title>Spotify Login</title><script type="text/javascript">setTimeout(() => window.close(), 1000);</script></head></body></html>''')
       ..close();
 
     await server.close();
