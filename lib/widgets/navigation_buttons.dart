@@ -55,7 +55,17 @@ class NavigationButtons extends StatelessWidget {
             children: const [
               Icon(Icons.desktop_windows, size: 20),
               SizedBox(width: 8),
-              Text('Return to Desktop'),
+              Text('Desktop Mode'),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 2,
+          child: Row(
+            children: const [
+              Icon(Icons.brightness_medium, size: 20),
+              SizedBox(width: 8),
+              Text('Adjust Brightness'),
             ],
           ),
         ),
@@ -66,6 +76,9 @@ class NavigationButtons extends StatelessWidget {
     switch (selected) {
       case 1:
         exit(0);
+      case 2:
+        _showBrightnessControls(context);
+        break;
       case 3:
         // Cancel
         break;
@@ -92,6 +105,72 @@ class NavigationButtons extends StatelessWidget {
       print('Exit code: ${result.exitCode}');
     } catch (e) {
       print('Error executing AC command: $e');
+    }
+  }
+
+  void _showBrightnessControls(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 200,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Adjust Brightness',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Column(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.dark_mode, size: 32),
+                        onPressed: () => _setBrightness('night'),
+                      ),
+                      const Text('Night Mode'),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.light_mode, size: 32),
+                        onPressed: () => _setBrightness('day'),
+                      ),
+                      const Text('Day Mode'),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _setBrightness(String mode) async {
+    if (!Platform.isLinux) {
+      print('Brightness control is only supported on Linux');
+      return;
+    }
+
+    try {
+      final String command = mode == 'night'
+          ? 'echo 26 > /sys/class/backlight/10-0045/brightness'
+          : 'echo 255 > /sys/class/backlight/10-0045/brightness';
+
+      final result = await Process.run('bash', ['-c', command]);
+      
+      if (result.exitCode != 0) {
+        print('Error setting brightness: ${result.stderr}');
+      }
+    } catch (e) {
+      print('Error executing brightness command: $e');
     }
   }
 }

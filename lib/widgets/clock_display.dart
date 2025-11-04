@@ -35,7 +35,7 @@ class _ClockDisplayState extends State<ClockDisplay> {
     final time = DateFormat('hh:mm').format(_currentTime);
     final amPm = DateFormat('a').format(_currentTime);
     final day = DateFormat('EEEE').format(_currentTime);
-    final date = DateFormat('MM/dd/yyyy').format(_currentTime);
+    final date = DateFormat('dd/MM/yyyy').format(_currentTime);
 
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 400),
