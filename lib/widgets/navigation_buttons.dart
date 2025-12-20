@@ -32,9 +32,30 @@ class NavigationButtons extends StatelessWidget {
           icon: Icons.settings_outlined,
           onPressed: () => _showSettingsMenu(context),
         ),
+        const SizedBox(width: 18),
+    _NavButton(
+      icon: Icons.home, // Google Home icon (closest Material Icon)
+      onPressed: () => _openGoogleHome(), // New function
+    ),
       ],
     );
   }
+
+  void _openGoogleHome() async {
+    try {
+      final result = await Process.run('bash', [
+        '-c',
+        'google-chrome --app=https://home.google.com/home/1-bdf6cb9325fe370b3f235819a2a73c5c6bb93224111176defe631af9c6a60aa8/automations'
+      ]);
+
+      if (result.exitCode != 0) {
+        print('Error opening Google Home: ${result.stderr}');
+      }
+    } catch (e) {
+      print('Error executing Google Home command: $e');
+    }
+  }
+
 
   void _showSettingsMenu(BuildContext context) async {
     final RenderBox button = context.findRenderObject() as RenderBox;
@@ -132,7 +153,7 @@ class NavigationButtons extends StatelessWidget {
                         icon: const Icon(Icons.dark_mode, size: 32),
                         onPressed: () => _setBrightness('night'),
                       ),
-                      const Text('Night Mode'),
+    
                     ],
                   ),
                   Column(
@@ -141,7 +162,7 @@ class NavigationButtons extends StatelessWidget {
                         icon: const Icon(Icons.light_mode, size: 32),
                         onPressed: () => _setBrightness('day'),
                       ),
-                      const Text('Day Mode'),
+   
                     ],
                   ),
                 ],
