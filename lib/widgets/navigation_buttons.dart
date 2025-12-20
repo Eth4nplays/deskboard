@@ -28,15 +28,16 @@ class NavigationButtons extends StatelessWidget {
           },
         ),
         const SizedBox(width: 18),
-        _NavButton(
-          icon: Icons.settings_outlined,
-          onPressed: () => _showSettingsMenu(context),
-        ),
-        const SizedBox(width: 18),
     _NavButton(
       icon: Icons.home, // Google Home icon (closest Material Icon)
       onPressed: () => _openGoogleHome(), // New function
     ),
+        const SizedBox(width: 18),
+        _NavButton(
+          icon: Icons.settings_outlined,
+          onPressed: () => _showSettingsMenu(context),
+        ),
+        
       ],
     );
   }
@@ -45,7 +46,7 @@ class NavigationButtons extends StatelessWidget {
     try {
       final result = await Process.run('bash', [
         '-c',
-        'google-chrome --app=https://home.google.com/home/1-bdf6cb9325fe370b3f235819a2a73c5c6bb93224111176defe631af9c6a60aa8/automations'
+        'chromium --app=https://home.google.com/home/1-bdf6cb9325fe370b3f235819a2a73c5c6bb93224111176defe631af9c6a60aa8/automations'
       ]);
 
       if (result.exitCode != 0) {
