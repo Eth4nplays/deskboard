@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 
 class TodoList extends StatefulWidget {
   const TodoList({super.key});
@@ -10,6 +11,7 @@ class TodoList extends StatefulWidget {
 
 class _TodoListState extends State<TodoList> {
   final TextEditingController _controller = TextEditingController();
+  final FocusNode _inputFocusNode = FocusNode();
   List<String> _tasks = [];
   Set<int> _completed = {};
 
@@ -17,7 +19,23 @@ class _TodoListState extends State<TodoList> {
   void initState() {
     super.initState();
     _loadTasks();
+
+    _inputFocusNode.addListener(() {
+    if (_inputFocusNode.hasFocus) {
+        // Launch Onboard when TextField gains focus
+        Process.start('onboard', []);
+      }
+    }
+    );
   }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _inputFocusNode.dispose();
+    super.dispose();
+  }
+
 
   Future<void> _loadTasks() async {
     final prefs = await SharedPreferences.getInstance();
@@ -160,6 +178,7 @@ class _TodoListState extends State<TodoList> {
                     children: [
                       Expanded(
                         child: TextField(
+                          focusNode: _inputFocusNode,
                           controller: _controller,
                           style: TextStyle(
                             color:

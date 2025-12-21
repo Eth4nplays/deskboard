@@ -10,8 +10,7 @@ class NavigationButtons extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _NavButton(icon: Icons.keyboard, onPressed: () => _executeONBOARD()),
-        const SizedBox(width: 18),
+      
         _NavButton(
           icon: Icons.music_note,
           onPressed: () {
@@ -44,17 +43,17 @@ class NavigationButtons extends StatelessWidget {
 
   void _openGoogleHome() async {
     try {
-      final result = await Process.run('bash', [
-        '-c',
-        'chromium --app=https://home.google.com/home/1-bdf6cb9325fe370b3f235819a2a73c5c6bb93224111176defe631af9c6a60aa8/automations'
-      ]);
+  await Process.start(
+    'chromium',
+    [
+      '--start-maximized',
+      '--app=https://home.google.com/home/1-bdf6cb9325fe370b3f235819a2a73c5c6bb93224111176defe631af9c6a60aa8/automations',
+    ],
+  );
+} catch (e) {
+  debugPrint('Failed to launch Chromium: $e');
+}
 
-      if (result.exitCode != 0) {
-        print('Error opening Google Home: ${result.stderr}');
-      }
-    } catch (e) {
-      print('Error executing Google Home command: $e');
-    }
   }
 
 
@@ -107,28 +106,7 @@ class NavigationButtons extends StatelessWidget {
     }
   }
 
-  void _executeONBOARD() async {
-    try {
-      ProcessResult result;
-
-      if (Platform.isWindows) {
-        // Use cmd for Windows
-        result = await Process.run('cmd', [
-          '/c',
-          'echo onboard will open in linux build',
-        ]);
-      } else {
-        // Use bash for Linux/macOS
-        result = await Process.run('bash', ['-c', 'onboard']);
-      }
-
-      print('ONBOARD Command output: ${result.stdout}');
-      print('ONBOARD Command error: ${result.stderr}');
-      print('Exit code: ${result.exitCode}');
-    } catch (e) {
-      print('Error executing AC command: $e');
-    }
-  }
+  
 
   void _showBrightnessControls(BuildContext context) {
     showModalBottomSheet(
