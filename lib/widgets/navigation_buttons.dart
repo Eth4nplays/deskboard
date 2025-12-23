@@ -161,7 +161,7 @@ class NavigationButtons extends StatelessWidget {
 
     try {
       final String command = mode == 'night'
-          ? 'echo 26 > /sys/class/backlight/10-0045/brightness'
+          ? 'echo 20 > /sys/class/backlight/10-0045/brightness'
           : 'echo 255 > /sys/class/backlight/10-0045/brightness';
 
       final result = await Process.run('bash', ['-c', command]);
