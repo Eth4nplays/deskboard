@@ -157,7 +157,7 @@ class _TodoListState extends State<TodoList> {
                                           minHeight: 24,
                                         ),
                                         padding: EdgeInsets.zero,
-                                        iconSize: 20,
+                                        iconSize: 22,
                                         icon: Icon(
                                           Icons.check,
                                           color:

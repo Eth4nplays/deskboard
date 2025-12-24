@@ -74,7 +74,7 @@ class NavigationButtons extends StatelessWidget {
           value: 1,
           child: Row(
             children: const [
-              Icon(Icons.desktop_windows, size: 20),
+              Icon(Icons.desktop_windows, size: 25),
               SizedBox(width: 8),
               Text('Desktop Mode'),
             ],
@@ -84,7 +84,7 @@ class NavigationButtons extends StatelessWidget {
           value: 2,
           child: Row(
             children: const [
-              Icon(Icons.brightness_medium, size: 20),
+              Icon(Icons.brightness_medium, size: 25),
               SizedBox(width: 8),
               Text('Adjust Brightness'),
             ],
@@ -129,7 +129,7 @@ class NavigationButtons extends StatelessWidget {
                   Column(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.dark_mode, size: 32),
+                        icon: const Icon(Icons.dark_mode, size: 40),
                         onPressed: () => _setBrightness('night'),
                       ),
     
@@ -138,7 +138,7 @@ class NavigationButtons extends StatelessWidget {
                   Column(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.light_mode, size: 32),
+                        icon: const Icon(Icons.light_mode, size: 40),
                         onPressed: () => _setBrightness('day'),
                       ),
    
