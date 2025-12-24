@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marquee/marquee.dart';
 import '../services/spotify_service.dart'; // import your service
 import 'dart:async';
 
@@ -104,15 +105,20 @@ class _SpotifyPlayerState extends State<SpotifyPlayer> {
     crossAxisAlignment: CrossAxisAlignment.start,
     mainAxisSize: MainAxisSize.min,
     children: [
-      Text(
-        songTitle,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        softWrap: false,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: Theme.of(context).colorScheme.onSecondaryContainer,
-        ),
-      ),
+      SizedBox(
+  height: 20, // important: fixes layout jumping
+  child: Marquee(
+    text: songTitle,
+    blankSpace: 40,
+    velocity: 25,
+    pauseAfterRound: const Duration(seconds: 1),
+    startPadding: 0,
+    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+      color: Theme.of(context).colorScheme.onSecondaryContainer,
+    ),
+  ),
+),
+
       const SizedBox(height: 2),
       Text(
         artistName,
