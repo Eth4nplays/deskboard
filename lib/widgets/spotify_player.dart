@@ -70,71 +70,77 @@ class _SpotifyPlayerState extends State<SpotifyPlayer> {
         child: Row(
           children: [
             // Album art and song info
-            Row(
-              children: [
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    image:
-                        albumArtUrl != null
-                            ? DecorationImage(
-                              image: NetworkImage(albumArtUrl!),
-                              fit: BoxFit.cover, // fills the square
+            Expanded(
+              child: Row(
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      image:
+                          albumArtUrl != null
+                              ? DecorationImage(
+                                image: NetworkImage(albumArtUrl!),
+                                fit: BoxFit.cover,
+                              )
+                              : null,
+                      color:
+                          albumArtUrl == null
+                              ? Theme.of(context).colorScheme.surface
+                              : null,
+                    ),
+                    child:
+                        albumArtUrl == null
+                            ? Icon(
+                              Icons.music_note,
+                              size: 24,
+                              color: Theme.of(context).colorScheme.primary,
                             )
                             : null,
-                    color:
-                        albumArtUrl == null
-                            ? Theme.of(context).colorScheme.surface
-                            : null, // only use color if no art
                   ),
-                  child:
-                      albumArtUrl == null
-                          ? Icon(
-                            Icons.music_note,
-                            size: 24,
-                            color: Theme.of(context).colorScheme.primary,
-                          )
-                          : null,
-                ),
 
-                const SizedBox(width: 8),
-                Expanded(
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      SizedBox(
-  height: 20, // important: fixes layout jumping
-  child: Marquee(
-    text: songTitle,
-    blankSpace: 40,
-    velocity: 25,
-    pauseAfterRound: const Duration(seconds: 1),
-    startPadding: 0,
-    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-      color: Theme.of(context).colorScheme.onSecondaryContainer,
-    ),
-  ),
-),
+                  const SizedBox(width: 8),
 
-      const SizedBox(height: 2),
-      Text(
-        artistName,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        softWrap: false,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: Theme.of(context).colorScheme.onSecondaryContainer,
-        ),
-      ),
-    ],
-  ),
-),
-
-              ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          songTitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(
+                            color:
+                                Theme.of(
+                                  context,
+                                ).colorScheme.onSecondaryContainer,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          artistName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(
+                            color:
+                                Theme.of(
+                                  context,
+                                ).colorScheme.onSecondaryContainer,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
+
             const Spacer(),
             // Controls
             Row(
