@@ -10,7 +10,6 @@ class NavigationButtons extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-      
         _NavButton(
           icon: Icons.music_note,
           onPressed: () {
@@ -27,35 +26,29 @@ class NavigationButtons extends StatelessWidget {
           },
         ),
         const SizedBox(width: 18),
-    _NavButton(
-      icon: Icons.home, // Google Home icon (closest Material Icon)
-      onPressed: () => _openGoogleHome(), // New function
-    ),
+        _NavButton(
+          icon: Icons.home, // Google Home icon (closest Material Icon)
+          onPressed: () => _openGoogleHome(), // New function
+        ),
         const SizedBox(width: 18),
         _NavButton(
           icon: Icons.settings_outlined,
           onPressed: () => _showSettingsMenu(context),
         ),
-        
       ],
     );
   }
 
   void _openGoogleHome() async {
     try {
-  await Process.start(
-    'chromium',
-    [
-      '--start-maximized',
-      '--app=https://home.google.com/home/1-bdf6cb9325fe370b3f235819a2a73c5c6bb93224111176defe631af9c6a60aa8/automations',
-    ],
-  );
-} catch (e) {
-  debugPrint('Failed to launch Chromium: $e');
-}
-
+      await Process.start('chromium', [
+        '--start-maximized',
+        '--app=https://home.google.com/home/1-bdf6cb9325fe370b3f235819a2a73c5c6bb93224111176defe631af9c6a60aa8/automations',
+      ]);
+    } catch (e) {
+      debugPrint('Failed to launch Chromium: $e');
+    }
   }
-
 
   void _showSettingsMenu(BuildContext context) async {
     final RenderBox button = context.findRenderObject() as RenderBox;
@@ -106,66 +99,85 @@ class NavigationButtons extends StatelessWidget {
     }
   }
 
-  
-
   void _showBrightnessControls(BuildContext context) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return Container(
-          height: 200,
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Adjust Brightness',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
-              ),
-              const SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        double brightness = 255; // default value
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Container(
+              height: 260,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Column(
+                  Text(
+                    'Adjust Brightness',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       IconButton(
                         icon: const Icon(Icons.dark_mode, size: 40),
-                        onPressed: () => _setBrightness('night'),
+                        onPressed: () {
+                          setState(() => brightness = 20);
+                          _setBrightnessValue(20);
+                        },
                       ),
-    
-                    ],
-                  ),
-                  Column(
-                    children: [
                       IconButton(
                         icon: const Icon(Icons.light_mode, size: 40),
-                        onPressed: () => _setBrightness('day'),
+                        onPressed: () {
+                          setState(() => brightness = 255);
+                          _setBrightnessValue(255);
+                        },
                       ),
-   
                     ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Slider
+                  Slider(
+                    min: 20,
+                    max: 255,
+                    divisions: 235,
+                    value: brightness,
+                    label: brightness.round().toString(),
+                    onChanged: (value) {
+                      setState(() => brightness = value);
+                      _setBrightnessValue(value.round());
+                    },
                   ),
                 ],
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
 
-  void _setBrightness(String mode) async {
+  void _setBrightnessValue(int value) async {
     if (!Platform.isLinux) {
       print('Brightness control is only supported on Linux');
       return;
     }
 
     try {
-      final String command = mode == 'night'
-          ? 'echo 20 > /sys/class/backlight/10-0045/brightness'
-          : 'echo 255 > /sys/class/backlight/10-0045/brightness';
+      final command = 'echo $value > /sys/class/backlight/10-0045/brightness';
 
       final result = await Process.run('bash', ['-c', command]);
-      
+
       if (result.exitCode != 0) {
         print('Error setting brightness: ${result.stderr}');
       }
