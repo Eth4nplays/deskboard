@@ -99,31 +99,34 @@ class _SpotifyPlayerState extends State<SpotifyPlayer> {
                 ),
 
                 const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      songTitle.length > 22
-                          ? '${songTitle.substring(0, 22)}…'
-                          : songTitle,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      artistName.length > 28
-                          ? '${artistName.substring(0, 28)}…'
-                          : artistName,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
-                      ),
-                    ),
-                  ],
-                ),
+                Expanded(
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Text(
+        songTitle,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        softWrap: false,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: Theme.of(context).colorScheme.onSecondaryContainer,
+        ),
+      ),
+      const SizedBox(height: 2),
+      Text(
+        artistName,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        softWrap: false,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: Theme.of(context).colorScheme.onSecondaryContainer,
+        ),
+      ),
+    ],
+  ),
+),
+
               ],
             ),
             const Spacer(),
