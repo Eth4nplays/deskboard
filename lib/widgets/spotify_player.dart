@@ -141,7 +141,7 @@ class _SpotifyPlayerState extends State<SpotifyPlayer> {
               ),
             ),
 
-            const Spacer(),
+          
             // Controls
             Row(
               mainAxisSize: MainAxisSize.min,
