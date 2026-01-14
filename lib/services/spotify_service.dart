@@ -4,10 +4,11 @@ import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+import '../secrets.dart';
 
 class SpotifyService {
-  static const String clientId = "bdf5acf8148e4dac9431bbb4aa8d52c7";
-  static const String clientSecret = "fc3f6f466aa549d1b9aa26cf5eadd678";
+  static const String clientId = clientIdS;
+  static const String clientSecret = clientSecretS;
   static const String redirectUri = "http://127.0.0.1:8580/callback";
   static const String scopes =
       "user-read-playback-state user-modify-playback-state user-read-currently-playing";
