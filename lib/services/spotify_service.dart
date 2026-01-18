@@ -152,6 +152,47 @@ class SpotifyService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getDevices() async {
+    await _ensureToken();
+    final url = Uri.parse("https://api.spotify.com/v1/me/player/devices");
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $_accessToken'},
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return (data['devices'] as List)
+          .map(
+            (d) => {
+              'id': d['id'],
+              'name': d['name'],
+              'type': d['type'], // Computer, Smartphone, Speaker
+              'isActive': d['is_active'],
+            },
+          )
+          .toList();
+    }
+
+    return [];
+  }
+
+  Future<void> transferPlayback(String deviceId) async {
+    await _ensureToken();
+    final url = Uri.parse("https://api.spotify.com/v1/me/player");
+    await http.put(
+      url,
+      headers: {
+        'Authorization': 'Bearer $_accessToken',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'device_ids': [deviceId],
+        'play': true,
+      }),
+    );
+  }
+
   /// Resume playback (play or unpause)
   Future<void> resume() async {
     await _ensureToken();

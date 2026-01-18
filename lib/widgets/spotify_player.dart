@@ -36,6 +36,41 @@ class _SpotifyPlayerState extends State<SpotifyPlayer> {
     super.dispose();
   }
 
+  Future<void> _showDevicePicker() async {
+    final devices = await widget.spotify.getDevices();
+    if (!mounted) return;
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) {
+        return ListView(
+          children:
+              devices.map((device) {
+                return ListTile(
+                  leading: Icon(
+                    device['type'] == 'Smartphone'
+                        ? Icons.phone_android
+                        : device['type'] == 'Computer'
+                        ? Icons.computer
+                        : Icons.speaker,
+                  ),
+                  title: Text(device['name']),
+                  trailing: device['isActive'] ? const Icon(Icons.check) : null,
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await widget.spotify.transferPlayback(device['id']);
+                    await _loadCurrentTrack();
+                  },
+                );
+              }).toList(),
+        );
+      },
+    );
+  }
+
   Future<void> _loadCurrentTrack() async {
     final track = await widget.spotify.getCurrentTrack();
     if (!mounted) return;
@@ -141,11 +176,16 @@ class _SpotifyPlayerState extends State<SpotifyPlayer> {
               ),
             ),
 
-          
             // Controls
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                IconButton(
+                  icon: const Icon(Icons.devices_rounded),
+                  tooltip: "Select playback device",
+                  onPressed: _showDevicePicker,
+                ),
+
                 IconButton(
                   icon: const Icon(Icons.skip_previous_rounded),
                   onPressed: () async {
