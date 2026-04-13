@@ -43,7 +43,7 @@ class NavigationButtons extends StatelessWidget {
     try {
       await Process.start('chromium', [
         '--start-maximized',
-        '--app=https://home.google.com/home/1-bdf6cb9325fe370b3f235819a2a73c5c6bb93224111176defe631af9c6a60aa8/automations',
+        '--app=http://192.168.1.129:8123/home/areas-bedroom',
       ]);
     } catch (e) {
       debugPrint('Failed to launch Chromium: $e');
