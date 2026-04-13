@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import '../pages/spotifyplaylists.dart';
-import '../pages/home_control.dart';
 
 class NavigationButtons extends StatelessWidget {
   const NavigationButtons({super.key});
@@ -29,12 +28,7 @@ class NavigationButtons extends StatelessWidget {
         const SizedBox(width: 18),
         _NavButton(
           icon: Icons.home, // Google Home icon (closest Material Icon)
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const HomeAssistantPage()),
-            );
-          }, // New function
+          onPressed: () => _openGoogleHome(), // New function
         ),
         const SizedBox(width: 18),
         _NavButton(
@@ -43,6 +37,17 @@ class NavigationButtons extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  void _openGoogleHome() async {
+    try {
+      await Process.start('chromium', [
+        '--start-maximized',
+        '--app=http://192.168.1.129:8123/home/areas-bedroom',
+      ]);
+    } catch (e) {
+      debugPrint('Failed to launch Chromium: $e');
+    }
   }
 
   void _showSettingsMenu(BuildContext context) async {
