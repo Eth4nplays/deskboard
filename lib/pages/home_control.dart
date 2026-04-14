@@ -17,7 +17,10 @@ class HomeControlPage extends StatelessWidget {
   void _setPiBrightness(int value) async {
     if (Platform.isLinux) {
       try {
-        await Process.run('bash', ['-c', 'echo $value > /sys/class/backlight/10-0045/brightness']);
+        await Process.run('bash', [
+          '-c',
+          'echo $value > /sys/class/backlight/10-0045/brightness',
+        ]);
       } catch (e) {
         debugPrint('Brightness error: $e');
       }
@@ -34,7 +37,7 @@ class HomeControlPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Room Control'),
@@ -47,21 +50,20 @@ class HomeControlPage extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: GridView.count(
-                crossAxisCount: 2, // Squarish 2-column layout
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
+              child: ListView(
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 children: [
-                  _SceneTile(
+                  _CompactSceneTile(
                     label: 'Good Night',
                     icon: Icons.bedtime_outlined,
                     activeColor: Colors.indigoAccent,
                     onPressed: () {
                       _triggerScene('good_night_webhook');
-                      _setPiBrightness(10);
+                      _setPiBrightness(20);
                     },
                   ),
-                  _SceneTile(
+                  const SizedBox(height: 8),
+                  _CompactSceneTile(
                     label: 'Casual',
                     icon: Icons.wb_sunny_outlined,
                     activeColor: Colors.orangeAccent,
@@ -70,7 +72,8 @@ class HomeControlPage extends StatelessWidget {
                       _setPiBrightness(255);
                     },
                   ),
-                  _SceneTile(
+                  const SizedBox(height: 8),
+                  _CompactSceneTile(
                     label: 'Study',
                     icon: Icons.auto_stories_outlined,
                     activeColor: Colors.blueAccent,
@@ -79,8 +82,8 @@ class HomeControlPage extends StatelessWidget {
                       _setPiBrightness(150);
                     },
                   ),
-                  // Placeholder/Bonus Tile to keep the grid even
-                  _SceneTile(
+                  const SizedBox(height: 8),
+                  _CompactSceneTile(
                     label: 'All Off',
                     icon: Icons.power_settings_new,
                     activeColor: Colors.redAccent,
@@ -94,14 +97,24 @@ class HomeControlPage extends StatelessWidget {
             OutlinedButton.icon(
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 64),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                side: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.5)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                side: BorderSide(
+                  color: theme.colorScheme.outline.withValues(alpha: 0.5),
+                ),
               ),
               onPressed: _launchFullWeb,
-              icon: Icon(Icons.open_in_browser, color: theme.colorScheme.primary),
+              icon: Icon(
+                Icons.open_in_browser,
+                color: theme.colorScheme.primary,
+              ),
               label: Text(
                 'Launch Home Assistant UI',
-                style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  color: theme.colorScheme.onSurface,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -112,13 +125,13 @@ class HomeControlPage extends StatelessWidget {
   }
 }
 
-class _SceneTile extends StatelessWidget {
+class _CompactSceneTile extends StatelessWidget {
   final String label;
   final IconData icon;
   final Color activeColor;
   final VoidCallback onPressed;
 
-  const _SceneTile({
+  const _CompactSceneTile({
     required this.label,
     required this.icon,
     required this.activeColor,
@@ -128,38 +141,38 @@ class _SceneTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return InkWell(
       onTap: onPressed,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(12),
       child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: theme.colorScheme.outline.withValues(alpha: 0.2),
-            width: 1.5,
+            color: theme.colorScheme.outline.withValues(alpha: 0.1),
+            width: 1,
           ),
           color: theme.colorScheme.surface,
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: activeColor.withValues(alpha:0.1),
-                shape: BoxShape.circle,
+            Icon(icon, size: 24, color: activeColor),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: theme.colorScheme.onSurface,
+                ),
               ),
-              child: Icon(icon, size: 32, color: activeColor),
             ),
-            const SizedBox(height: 12),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.onSurface,
-              ),
+            Icon(
+              Icons.chevron_right,
+              size: 20,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
             ),
           ],
         ),
