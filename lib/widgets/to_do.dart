@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
-
-import '../secrets.dart';
 
 class TodoList extends StatefulWidget {
   const TodoList({super.key});
@@ -15,24 +12,21 @@ class TodoList extends StatefulWidget {
 class _TodoListState extends State<TodoList> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
-
-  List<dynamic> _tasks = [];
-  bool _isLoading = false;
-
-  final String _haUrl = 'http://192.168.1.129:8123/api';
-  final String _entityId = 'todo.todo';
-  final String _token = haToken;
+  List<String> _tasks = [];
+  Set<int> _completed = {};
 
   @override
   void initState() {
     super.initState();
-    _fetchTasks();
+    _loadTasks();
 
     _inputFocusNode.addListener(() {
-      if (_inputFocusNode.hasFocus && Platform.isLinux) {
+    if (_inputFocusNode.hasFocus) {
+        // Launch Onboard when TextField gains focus
         Process.start('onboard', []);
       }
-    });
+    }
+    );
   }
 
   @override
@@ -42,77 +36,44 @@ class _TodoListState extends State<TodoList> {
     super.dispose();
   }
 
-  Future<void> _fetchTasks() async {
-    setState(() => _isLoading = true);
 
-    // Use the service call URL
-    final url = Uri.parse(
-      'http://192.168.1.129:8123/api/services/todo/get_items',
+  Future<void> _loadTasks() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _tasks = prefs.getStringList('tasks') ?? [];
+      _completed =
+          (prefs.getStringList('completed') ?? [])
+              .map((e) => int.parse(e))
+              .toSet();
+    });
+  }
+
+  Future<void> _saveTasks() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('tasks', _tasks);
+    await prefs.setStringList(
+      'completed',
+      _completed.map((e) => e.toString()).toList(),
     );
-
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Authorization': 'Bearer $_token',
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({'entity_id': 'todo.todo'}),
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          // The service call returns a map keyed by the entity ID
-          _tasks = data['todo.todo']['items'] ?? [];
-        });
-      } else {
-        debugPrint('HA Error: ${response.statusCode}');
-      }
-    } catch (e) {
-      debugPrint('Network Error: $e');
-    } finally {
-      setState(() => _isLoading = false);
-    }
   }
 
-  Future<void> _addTask(String task) async {
+  void _addTask(String task) {
     if (task.trim().isEmpty) return;
-    try {
-      await http.post(
-        Uri.parse('$_haUrl/services/todo/add_item'),
-        headers: {
-          'Authorization': 'Bearer $_token',
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({'entity_id': _entityId, 'item': task.trim()}),
-      );
-      _controller.clear();
-      _fetchTasks();
-    } catch (e) {
-      debugPrint('Add error: $e');
-    }
+    setState(() => _tasks.add(task.trim()));
+    _controller.clear();
+    _saveTasks();
   }
 
-  Future<void> _toggleComplete(String summary) async {
-    try {
-      // In HA, updating to 'completed' often removes it from the default view
-      await http.post(
-        Uri.parse('$_haUrl/services/todo/update_item'),
-        headers: {
-          'Authorization': 'Bearer $_token',
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({
-          'entity_id': _entityId,
-          'item': summary,
-          'status': 'completed',
-        }),
-      );
-      _fetchTasks();
-    } catch (e) {
-      debugPrint('Toggle error: $e');
-    }
+  void _toggleComplete(int index) {
+    setState(() {
+      _tasks.removeAt(index);
+      _completed =
+          _completed
+              .where((i) => i != index)
+              .map((i) => i > index ? i - 1 : i)
+              .toSet();
+    });
+    _saveTasks();
   }
 
   @override
@@ -120,21 +81,25 @@ class _TodoListState extends State<TodoList> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return Center(
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: 400,
-          maxHeight: MediaQuery.of(context).size.height * 0.9,
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header with Refresh Button
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Calculate remaining height for the task list dynamically
+        final availableHeight = constraints.maxHeight - 140;
+        // 140 accounts for padding, header, input row, and spacing
+
+        return Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 400,
+              maxHeight: MediaQuery.of(context).size.height * 0.9,
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Header
                   Text(
                     "To-Do List",
                     style: textTheme.headlineSmall?.copyWith(
@@ -142,135 +107,133 @@ class _TodoListState extends State<TodoList> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  _isLoading
-                      ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                      : IconButton(
-                        onPressed: _fetchTasks,
-                        icon: const Icon(Icons.refresh, size: 20),
-                        color: colorScheme.primary,
-                        visualDensity: VisualDensity.compact,
-                      ),
-                ],
-              ),
-              const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-              // Task list
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child:
-                      _tasks.isEmpty
-                          ? Center(
-                            child: Text(
-                              "No tasks found.",
-                              style: textTheme.bodyMedium,
-                            ),
-                          )
-                          : ListView.separated(
-                            itemCount: _tasks.length,
-                            separatorBuilder:
-                                (_, __) => Divider(
-                                  color: colorScheme.outline.withValues(
-                                    alpha: 0.2,
+                  // Task list (scrollable)
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: colorScheme.secondaryContainer,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child:
+                          _tasks.isEmpty
+                              ? Center(
+                                child: Text(
+                                  "No tasks yet.",
+                                  style: textTheme.bodyMedium?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
                                   ),
                                 ),
-                            itemBuilder: (context, index) {
-                              final item = _tasks[index];
-                              final bool isCompleted =
-                                  item['status'] == 'completed';
-
-                              return Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      item['summary'],
-                                      style: textTheme.bodyMedium?.copyWith(
-                                        color: colorScheme.onSecondaryContainer,
-                                        decoration:
-                                            isCompleted
-                                                ? TextDecoration.lineThrough
-                                                : null,
+                              )
+                              : ListView.separated(
+                                itemCount: _tasks.length,
+                                separatorBuilder:
+                                    (_, __) =>
+                                        Divider(color: colorScheme.outline),
+                                itemBuilder: (context, index) {
+                                  final task = _tasks[index];
+                                  final completed = _completed.contains(index);
+                                  return Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          task,
+                                          style: textTheme.bodyMedium?.copyWith(
+                                            color:
+                                                colorScheme
+                                                    .onSecondaryContainer,
+                                            decoration:
+                                                completed
+                                                    ? TextDecoration.lineThrough
+                                                    : null,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    constraints: const BoxConstraints(
-                                      minWidth: 32,
-                                      minHeight: 32,
-                                    ),
-                                    icon: Icon(
-                                      isCompleted
-                                          ? Icons.check_circle
-                                          : Icons.radio_button_unchecked,
-                                      size: 22,
-                                      color: colorScheme.primary,
-                                    ),
-                                    onPressed:
-                                        () => _toggleComplete(item['summary']),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Input row
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      focusNode: _inputFocusNode,
-                      controller: _controller,
-                      style: TextStyle(color: colorScheme.onSecondaryContainer),
-                      decoration: InputDecoration(
-                        hintText: "Add new",
-                        filled: true,
-                        fillColor: colorScheme.secondaryContainer,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                      ),
-                      onSubmitted: _addTask,
+                                      IconButton(
+                                        constraints: const BoxConstraints(
+                                          minWidth: 24,
+                                          minHeight: 24,
+                                        ),
+                                        padding: EdgeInsets.zero,
+                                        iconSize: 22,
+                                        icon: Icon(
+                                          Icons.check,
+                                          color:
+                                              colorScheme.onSecondaryContainer,
+                                        ),
+                                        onPressed: () => _toggleComplete(index),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colorScheme.primary,
-                        foregroundColor: colorScheme.onPrimary,
-                        padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                  const SizedBox(height: 16),
+
+                  // Input row
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          focusNode: _inputFocusNode,
+                          controller: _controller,
+                          style: TextStyle(
+                            color:
+                                colorScheme
+                                    .onSecondaryContainer, // text you type will be this color
+                          ),
+                          decoration: InputDecoration(
+                            hintText: "Add new",
+                            hintStyle: TextStyle(
+                              color:
+                                  colorScheme
+                                      .onSurfaceVariant, // hint text color
+                            ),
+                            filled: true,
+                            fillColor: colorScheme.secondaryContainer,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                          ),
+                          onSubmitted: _addTask,
                         ),
                       ),
-                      onPressed: () => _addTask(_controller.text),
-                      child: const Icon(Icons.add),
-                    ),
+
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        width: 35, // desired width
+                        height: 35, // desired height
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colorScheme.primary,
+                            foregroundColor: colorScheme.onPrimary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding:
+                                EdgeInsets
+                                    .zero, // remove internal padding if needed
+                          ),
+                          onPressed: () => _addTask(_controller.text),
+                          child: const Text('+'),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
