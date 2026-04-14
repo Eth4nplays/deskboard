@@ -43,23 +43,36 @@ class _TodoListState extends State<TodoList> {
   }
 
   Future<void> _fetchTasks() async {
-    final url = Uri.parse('http://192.168.1.129:8123/api/states/todo.todo');
+    setState(() => _isLoading = true);
+
+    // Use the service call URL
+    final url = Uri.parse(
+      'http://192.168.1.129:8123/api/services/todo/get_items',
+    );
 
     try {
-      final response = await http.get(
+      final response = await http.post(
         url,
         headers: {
           'Authorization': 'Bearer $_token',
           'Content-Type': 'application/json',
         },
+        body: json.encode({'entity_id': 'todo.todo'}),
       );
 
       if (response.statusCode == 200) {
-      } else if (response.statusCode == 401) {
-        debugPrint('Error: Token is invalid or expired.');
+        final data = json.decode(response.body);
+        setState(() {
+          // The service call returns a map keyed by the entity ID
+          _tasks = data['todo.todo']['items'] ?? [];
+        });
+      } else {
+        debugPrint('HA Error: ${response.statusCode}');
       }
     } catch (e) {
       debugPrint('Network Error: $e');
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 

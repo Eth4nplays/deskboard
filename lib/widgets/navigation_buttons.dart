@@ -45,17 +45,6 @@ class NavigationButtons extends StatelessWidget {
     );
   }
 
-  void _openGoogleHome() async {
-    try {
-      await Process.start('chromium', [
-        '--start-maximized',
-        '--app=http://192.168.1.129:8123/home/areas-bedroom',
-      ]);
-    } catch (e) {
-      debugPrint('Failed to launch Chromium: $e');
-    }
-  }
-
   void _showSettingsMenu(BuildContext context) async {
     final RenderBox button = context.findRenderObject() as RenderBox;
     final Offset offset = button.localToGlobal(Offset.zero);
