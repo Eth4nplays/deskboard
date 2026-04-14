@@ -15,13 +15,12 @@ class TodoList extends StatefulWidget {
 class _TodoListState extends State<TodoList> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
-  
+
   List<dynamic> _tasks = [];
   bool _isLoading = false;
 
-  // Replace these with your actual HA details
   final String _haUrl = 'http://192.168.1.129:8123/api';
-  final String _entityId = 'todo.todo'; 
+  final String _entityId = 'todo.todo';
   final String _token = haToken;
 
   @override
@@ -44,10 +43,11 @@ class _TodoListState extends State<TodoList> {
   }
 
   Future<void> _fetchTasks() async {
-    setState(() => _isLoading = true);
+    final url = Uri.parse('http://192.168.1.129:8123/api/states/todo.todo');
+
     try {
       final response = await http.get(
-        Uri.parse('$_haUrl/states/$_entityId'),
+        url,
         headers: {
           'Authorization': 'Bearer $_token',
           'Content-Type': 'application/json',
@@ -55,16 +55,11 @@ class _TodoListState extends State<TodoList> {
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          // HA returns items inside the 'items' attribute
-          _tasks = data['attributes']['items'] ?? [];
-        });
+      } else if (response.statusCode == 401) {
+        debugPrint('Error: Token is invalid or expired.');
       }
     } catch (e) {
-      debugPrint('Fetch error: $e');
-    } finally {
-      setState(() => _isLoading = false);
+      debugPrint('Network Error: $e');
     }
   }
 
@@ -77,10 +72,7 @@ class _TodoListState extends State<TodoList> {
           'Authorization': 'Bearer $_token',
           'Content-Type': 'application/json',
         },
-        body: json.encode({
-          'entity_id': _entityId,
-          'item': task.trim(),
-        }),
+        body: json.encode({'entity_id': _entityId, 'item': task.trim()}),
       );
       _controller.clear();
       _fetchTasks();
@@ -137,9 +129,13 @@ class _TodoListState extends State<TodoList> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  _isLoading 
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                    : IconButton(
+                  _isLoading
+                      ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                      : IconButton(
                         onPressed: _fetchTasks,
                         icon: const Icon(Icons.refresh, size: 20),
                         color: colorScheme.primary,
@@ -157,39 +153,60 @@ class _TodoListState extends State<TodoList> {
                     color: colorScheme.secondaryContainer,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: _tasks.isEmpty
-                      ? Center(child: Text("No tasks found.", style: textTheme.bodyMedium))
-                      : ListView.separated(
-                          itemCount: _tasks.length,
-                          separatorBuilder: (_, __) => Divider(color: colorScheme.outline.withValues(alpha: 0.2)),
-                          itemBuilder: (context, index) {
-                            final item = _tasks[index];
-                            final bool isCompleted = item['status'] == 'completed';
+                  child:
+                      _tasks.isEmpty
+                          ? Center(
+                            child: Text(
+                              "No tasks found.",
+                              style: textTheme.bodyMedium,
+                            ),
+                          )
+                          : ListView.separated(
+                            itemCount: _tasks.length,
+                            separatorBuilder:
+                                (_, __) => Divider(
+                                  color: colorScheme.outline.withValues(
+                                    alpha: 0.2,
+                                  ),
+                                ),
+                            itemBuilder: (context, index) {
+                              final item = _tasks[index];
+                              final bool isCompleted =
+                                  item['status'] == 'completed';
 
-                            return Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    item['summary'],
-                                    style: textTheme.bodyMedium?.copyWith(
-                                      color: colorScheme.onSecondaryContainer,
-                                      decoration: isCompleted ? TextDecoration.lineThrough : null,
+                              return Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      item['summary'],
+                                      style: textTheme.bodyMedium?.copyWith(
+                                        color: colorScheme.onSecondaryContainer,
+                                        decoration:
+                                            isCompleted
+                                                ? TextDecoration.lineThrough
+                                                : null,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                IconButton(
-                                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                                  icon: Icon(
-                                    isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
-                                    size: 22,
-                                    color: colorScheme.primary,
+                                  IconButton(
+                                    constraints: const BoxConstraints(
+                                      minWidth: 32,
+                                      minHeight: 32,
+                                    ),
+                                    icon: Icon(
+                                      isCompleted
+                                          ? Icons.check_circle
+                                          : Icons.radio_button_unchecked,
+                                      size: 22,
+                                      color: colorScheme.primary,
+                                    ),
+                                    onPressed:
+                                        () => _toggleComplete(item['summary']),
                                   ),
-                                  onPressed: () => _toggleComplete(item['summary']),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
+                                ],
+                              );
+                            },
+                          ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -210,7 +227,10 @@ class _TodoListState extends State<TodoList> {
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                       ),
                       onSubmitted: _addTask,
                     ),
@@ -224,7 +244,9 @@ class _TodoListState extends State<TodoList> {
                         backgroundColor: colorScheme.primary,
                         foregroundColor: colorScheme.onPrimary,
                         padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       onPressed: () => _addTask(_controller.text),
                       child: const Icon(Icons.add),
