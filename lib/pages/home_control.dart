@@ -27,7 +27,7 @@ class HomeControlPage extends StatelessWidget {
   void _launchFullWeb() async {
     await Process.start('chromium', [
       '--start-maximized',
-      '--app=http://192.168.1.129:8123/home/areas-bedroom',
+      '--app=http://192.168.1.129:8123/dashboard-home/0',
     ]);
   }
 
