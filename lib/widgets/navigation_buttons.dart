@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
+import '../pages/home_control.dart';
 import '../pages/spotifyplaylists.dart';
 
 class NavigationButtons extends StatelessWidget {
@@ -27,8 +28,13 @@ class NavigationButtons extends StatelessWidget {
         ),
         const SizedBox(width: 18),
         _NavButton(
-          icon: Icons.home, // Google Home icon (closest Material Icon)
-          onPressed: () => _openGoogleHome(), // New function
+          icon: Icons.home,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const HomeControlPage()),
+            );
+          },
         ),
         const SizedBox(width: 18),
         _NavButton(
