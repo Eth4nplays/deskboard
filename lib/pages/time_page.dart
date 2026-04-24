@@ -139,7 +139,7 @@ class _FullScreenClockPageState extends State<FullScreenClockPage> {
                 children: [
                   // Clock display takes 3 parts of the space
                   Expanded(
-                    flex: 8,
+                    flex: showLyrics ? 8 : 100,
                     child: Center(
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -198,7 +198,7 @@ class _FullScreenClockPageState extends State<FullScreenClockPage> {
                   if (_currentTrack != null &&
                       _currentTrack!['isPlaying'] == true)
                     Expanded(
-                      flex: _hasLyrics ? 4 : 0,
+                      flex: showLyrics ? 4 : 0,
                       child: SpotifyLyrics(
                         artist: _spotifyArtist,
                         title: _spotifyTitle,

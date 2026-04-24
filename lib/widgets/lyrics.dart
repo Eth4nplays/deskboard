@@ -53,7 +53,10 @@ class _SpotifyLyricsState extends State<SpotifyLyrics> {
   }
 
   Future<void> _fetchLyrics() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _lyrics = [];
+    });
     try {
       final url = Uri.parse(
         'https://lrclib.net/api/get?artist_name=${Uri.encodeComponent(widget.artist)}&track_name=${Uri.encodeComponent(widget.title)}',
