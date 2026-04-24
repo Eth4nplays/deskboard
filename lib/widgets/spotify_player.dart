@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:marquee/marquee.dart';
+
 import '../services/spotify_service.dart'; // import your service
 import 'dart:async';
 
 class SpotifyPlayer extends StatefulWidget {
   final SpotifyService spotify;
+  final ValueChanged<Map<String, dynamic>>? onTrackUpdate;
 
-  const SpotifyPlayer({super.key, required this.spotify});
+  const SpotifyPlayer({
+    super.key,
+    required this.spotify,
+    this.onTrackUpdate,
+  });
 
   @override
   State<SpotifyPlayer> createState() => _SpotifyPlayerState();
@@ -80,6 +85,7 @@ class _SpotifyPlayerState extends State<SpotifyPlayer> {
       isPlaying = track['isPlaying'];
       albumArtUrl = track['albumArt'];
     });
+    widget.onTrackUpdate?.call(track);
   }
 
   Future<void> _togglePlayPause() async {

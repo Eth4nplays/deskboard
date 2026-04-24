@@ -19,7 +19,10 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late final SpotifyService spotify;
   Timer? _inactivityTimer;
+  
   final Duration _timeout = const Duration(seconds: 30);
+
+
 
   @override
   void initState() {
@@ -27,6 +30,8 @@ class _HomePageState extends State<HomePage> {
     spotify = Provider.of<SpotifyService>(context, listen: false);
     spotify.init();
     _startInactivityTimer();
+
+    
   }
 
   void _startInactivityTimer() {
@@ -51,8 +56,11 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _inactivityTimer?.cancel();
+  
     super.dispose();
   }
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +88,9 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(height: 20),
                         const NavigationButtons(),
                         const SizedBox(height: 20),
-                        SpotifyPlayer(spotify: spotify),
+                        SpotifyPlayer(
+                          spotify: spotify,
+                        ),
                       ],
                     ),
                   ),

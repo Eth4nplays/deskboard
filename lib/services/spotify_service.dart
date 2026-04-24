@@ -323,6 +323,8 @@ class SpotifyService {
         'artist': data['item']['artists'][0]['name'],
         'isPlaying': data['is_playing'],
         'albumArt': data['item']['album']['images'][0]['url'], // cover art
+        'progressMs': data['progress_ms'] ?? 0,
+        'durationMs': data['item']['duration_ms'] ?? 0,
       };
     }
 
