@@ -65,7 +65,7 @@ class _FullScreenClockPageState extends State<FullScreenClockPage> {
     try {
       final startTime = DateTime.now();
       final track = await spotify.getCurrentTrack();
-      final RTT = DateTime.now().difference(startTime).inMilliseconds;
+      final rtt = DateTime.now().difference(startTime).inMilliseconds;
       if (!mounted) return;
       setState(() {
         _currentTrack = track;
@@ -73,7 +73,7 @@ class _FullScreenClockPageState extends State<FullScreenClockPage> {
         _spotifyTitle = track['title'] ?? 'Not Playing';
         _spotifyArtist = track['artist'] ?? 'No Artist';
         int baseProgress = track['progressMs'] ?? 0;
-        _spotifyPosition = Duration(milliseconds: baseProgress + (RTT ~/ 2));
+        _spotifyPosition = Duration(milliseconds: baseProgress + (rtt ~/ 2));
         _spotifyIsPlaying = track['isPlaying'] ?? false;
       });
     } catch (_) {

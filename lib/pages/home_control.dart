@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 
+import '../config.dart';
+
 class HomeControlPage extends StatelessWidget {
   const HomeControlPage({super.key});
 
   Future<void> _triggerScene(String webhookId) async {
-    final url = Uri.parse('http://192.168.1.129:8123/api/webhook/$webhookId');
+    final url = Uri.parse('${homeAssistantUrl}api/webhook/$webhookId');
     try {
       await http.post(url);
     } catch (e) {
@@ -30,7 +32,7 @@ class HomeControlPage extends StatelessWidget {
   void _launchFullWeb() async {
     await Process.start('chromium', [
       '--start-maximized',
-      '--app=http://192.168.1.129:8123/dashboard-home/0',
+      '--app=${homeAssistantUrl}dashboard-home/0',
     ]);
   }
 

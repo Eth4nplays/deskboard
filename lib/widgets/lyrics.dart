@@ -32,7 +32,6 @@ class _SpotifyLyricsState extends State<SpotifyLyrics> {
   List<LyricLine> _lyrics = [];
   bool _isLoading = false;
 
-  // Use ItemScrollController for reliable centering by index
   final ItemScrollController _itemScrollController = ItemScrollController();
 
   @override
@@ -108,7 +107,7 @@ class _SpotifyLyricsState extends State<SpotifyLyrics> {
         index: index,
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOutCubic,
-        alignment: 0.5, // Centered vertically
+        alignment: 0.5,
       );
     }
   }
@@ -127,14 +126,12 @@ class _SpotifyLyricsState extends State<SpotifyLyrics> {
     return ScrollablePositionedList.builder(
       itemCount: _lyrics.length,
       itemScrollController: _itemScrollController,
-      // Large padding ensures the first and last lines can be centered
       padding: EdgeInsets.symmetric(
         vertical: MediaQuery.of(context).size.height * 0.4,
       ),
       itemBuilder: (context, i) {
         final lyric = _lyrics[i];
 
-        // Logical visibility: 1.0 for current, 0.4 for neighbors, 0.0 for others
         double opacity = 0.0;
         if (i == currentIndex) {
           opacity = 1.0;

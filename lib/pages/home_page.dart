@@ -7,7 +7,7 @@ import '../widgets/navigation_buttons.dart';
 import '../widgets/spotify_player.dart';
 import '../widgets/to_do.dart';
 import 'package:provider/provider.dart';
-import 'time_page.dart'; // import your clock page
+import 'time_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
