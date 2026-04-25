@@ -1,5 +1,5 @@
 # DeskBoard
-An open-source desktop dashboard built for the Raspberry Pi, with HomeAssistant and Spotify integrations.
+An open-source desktop dashboard built for touch-screen Raspberry Pi setups, with HomeAssistant and Spotify integrations.
 
 ## Features
 - Clock, date, and weather display
@@ -68,7 +68,7 @@ const String clientSecretS = "YOUR_CLIENT_SECRET";
 - Create an app, set the Redirect URI to "http://127.0.0.1:8580/callback", and replace the placeholders above.
 
 > [!CAUTION]
-> These credentials are used for the Spotify integration. Never upload your secrets.dart anywhere.
+> These credentials are used for the Spotify integration. Never upload your secrets.dart anywhere and remember to include it in your .gitignore!
 
 ---
 
@@ -143,63 +143,57 @@ actions:
 
 mode: single
 ```
+DeskBoard sends requests to:
+http://<home_assistant_ip>:8123/api/webhook/<webhook_id>
+which triggers the corresponding scene/action
 
-You may edit this automation based on your own scenes, or create them based on these.
-More info here: 
-- Scenes: https://www.home-assistant.io/docs/scene/editor/
-- Automations: https://www.home-assistant.io/docs/automation/editor/
+> [!TIP]
+> You may edit this automation based on your own scenes, or create them based on these.
+> More info here: 
+> - Scenes: https://www.home-assistant.io/docs/scene/editor/
+> - Automations: https://www.home-assistant.io/docs/automation/editor/
 ---
 
-### 5. Install Chromium and Onboard
-Install Chromium (Home Assistant WebView):
+### 5. Install Chromium (for Home Assistant WebView) and Onboard (on-screen keyboard)
+Install Chromium:
 ```bash
-sudo apt install chromium-browser
+sudo apt install chromium
 ```
 
-Install Onboard (On-Screen Keyboard):
+Install Onboard:
 ```bash
 sudo apt install onboard
 ```
 
 ---
 
-### 6. Run on Raspberry Pi
-
-Enable Linux desktop:
-```bash
+### 6. Build Release
+Enable building for Linux projects:
+```
 flutter config --enable-linux-desktop
 ```
-
-Run:
+Build the app:
 ```bash
-flutter run -d linux
+flutter build linux
+```
+Run the app:
+```bash
+./build/linux/x64/release/bundle/deskboard
 ```
 
 ---
 
-## Optional Setup
-
-### Auto Start DeskBoard
+### 7. Auto Start DeskBoard
 ```bash
 nano ~/.config/lxsession/LXDE-pi/autostart
 ```
 
 Add:
 ```bash
-@/home/pi/DeskBoard/build/linux/x64/release/bundle/deskboard
+@/home/$USER/DeskBoard/build/linux/x64/release/bundle/deskboard
 ```
 
----
 
-### Build Release
-```bash
-flutter build linux
-```
-
-Run:
-```bash
-./build/linux/x64/release/bundle/deskboard
-```
 
 ---
 
@@ -210,3 +204,4 @@ Run:
 - Designed for touchscreen usage
 
 ---
+
