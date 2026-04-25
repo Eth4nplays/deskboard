@@ -39,7 +39,7 @@ Links are from Cytron Malaysia:
 - Home Assistant server (running locally or remotely)
 - Spotify account + Developer API access
 - Internet connection
-- Chromium and Onboard
+- Chromium, Onboard and Noto-Fonts
 
 
 ## Setup Instructions
