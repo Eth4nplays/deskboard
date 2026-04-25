@@ -120,9 +120,9 @@ class _FullScreenClockPageState extends State<FullScreenClockPage> {
     final date = DateFormat('dd/MM/yyyy').format(_currentTime);
 
     final showLyrics = _spotifyIsPlaying && _hasLyrics;
-    final clockFontSize = showLyrics ? 75.0 : 95.0;
-    final amPmFontSize = showLyrics ? 35.0 : 45.0;
-    final dayDateFontSize = showLyrics ? 22.0 : 28.0;
+    final clockFontSize = showLyrics ? 70.0 : 95.0;
+    final amPmFontSize = showLyrics ? 30.0 : 45.0;
+    final dayDateFontSize = showLyrics ? 17.0 : 28.0;
 
     return MouseRegion(
       onHover: (_) => _goToHomePage(), // instant on hover
@@ -135,84 +135,98 @@ class _FullScreenClockPageState extends State<FullScreenClockPage> {
           body: Stack(
             children: [
               // 3:1 Layout Split for Clock and Lyrics
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Clock display takes 3 parts of the space
-                  Expanded(
-                    flex: showLyrics ? 8 : 100,
-                    child: Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
-                            children: [
-                              Text(
-                                '$time ',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: clockFontSize,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                  Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text(
+                              '$time ',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: clockFontSize,
+                                fontWeight: FontWeight.bold,
                               ),
-                              Text(
-                                amPm,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: amPmFontSize,
-                                ),
+                            ),
+                            Text(
+                              amPm,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: amPmFontSize,
                               ),
-                            ],
-                          ),
-                          const SizedBox(width: 32),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                day,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: dayDateFontSize,
-                                ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 32),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              day,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: dayDateFontSize,
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                date,
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: dayDateFontSize,
-                                ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              date,
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: dayDateFontSize,
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
 
-                  // Lyrics display takes 1 part of the space
                   if (_currentTrack != null &&
                       _currentTrack!['isPlaying'] == true)
-                    Expanded(
-                      flex: showLyrics ? 4 : 0,
-                      child: SpotifyLyrics(
-                        artist: _spotifyArtist,
-                        title: _spotifyTitle,
-                        currentPosition: _spotifyPosition,
-                        onLyricsStatusChanged: (bool found) {
-                          if (_hasLyrics != found) {
-                            setState(() => _hasLyrics = found);
-                          }
-                        },
-                      ),
-                    )
-                  // Keeps the clock perfectly aligned if no song is playing
-                  else
-                    const Expanded(flex: 1, child: SizedBox.shrink()),
+                    Column(
+                      children: [
+                        if (showLyrics)
+                          Column(
+                            children: [
+                              SizedBox(height: 25),
+                              ConstrainedBox(
+                                constraints: BoxConstraints(maxWidth: 500),
+                                child: Divider(),
+                              ),
+                              SizedBox(height: 20),
+                            ],
+                          ),
+
+                        ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxHeight: showLyrics ? 160 : 0,
+                          ),
+                          child: SpotifyLyrics(
+                            artist: _spotifyArtist,
+                            title: _spotifyTitle,
+                            currentPosition: _spotifyPosition,
+                            onLyricsStatusChanged: (bool found) {
+                              if (_hasLyrics != found) {
+                                setState(() => _hasLyrics = found);
+                              }
+                            },
+                          ),
+                        ),
+                        if (showLyrics) SizedBox(height: 75),
+                      ],
+                    ),
                 ],
               ),
 
