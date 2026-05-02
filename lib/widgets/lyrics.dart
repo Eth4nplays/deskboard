@@ -109,18 +109,7 @@ class _SpotifyLyricsState extends State<SpotifyLyrics> {
         index: index,
         duration: const Duration(milliseconds: 1),
         curve: Curves.easeInOutCubic,
-<<<<<<< HEAD
-        alignment: 0.3, // Centered vertically
-      );}
-      else{
-        _itemScrollController.scrollTo(
-        index: index,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOutCubic,
-        alignment: 0.3, // Centered vertically
-=======
         alignment: 0.5,
->>>>>>> b3b491de13acedfb3a2b15b1d4115409bfd83e18
       );
       }
       _lastIndex = index;
