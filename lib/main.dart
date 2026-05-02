@@ -8,13 +8,14 @@ import 'services/spotify_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final spotify = SpotifyService();
-  await spotify.init(); // initialize once
+  await spotify.init();
 
   runApp(
     Provider<SpotifyService>.value(value: spotify, child: const MainApp()),
   );
 }
 
+// Support for CJK characters
 TextTheme poppinsWithFallback(TextTheme base) {
   if(kIsWeb){
     return base;

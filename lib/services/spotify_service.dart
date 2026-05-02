@@ -34,7 +34,7 @@ class SpotifyService {
     }
   }
 
-  /// Start Spotify OAuth login (desktop loopback flow)
+  /// Start Spotify OAuth login
   Future<void> authenticate() async {
     if (_accessToken != null &&
         _expiryTime != null &&
@@ -61,7 +61,6 @@ class SpotifyService {
     final request = await server.first;
     final code = request.uri.queryParameters['code'];
 
-    // Respond with simple HTML so user can close tab
     request.response
       ..statusCode = 200
       ..headers.set('Content-Type', 'text/html')
@@ -79,7 +78,7 @@ class SpotifyService {
     await _requestTokens(code);
   }
 
-  /// Exchange code for tokens
+  // Exchange code for tokens
   Future<void> _requestTokens(String code) async {
     final url = Uri.parse("https://accounts.spotify.com/api/token");
     final response = await http.post(
@@ -104,7 +103,7 @@ class SpotifyService {
     _saveTokens(data);
   }
 
-  /// Refresh access token
+  // Refresh access token
   Future<void> refreshAccessToken() async {
     if (_refreshToken == null) return;
 
@@ -143,7 +142,7 @@ class SpotifyService {
     prefs.setInt("spotify_expiry", _expiryTime!.millisecondsSinceEpoch);
   }
 
-  /// Ensure valid access token
+  // Ensure valid access token
   Future<void> _ensureToken() async {
     if (_accessToken == null) {
       await authenticate();
@@ -167,7 +166,7 @@ class SpotifyService {
             (d) => {
               'id': d['id'],
               'name': d['name'],
-              'type': d['type'], // Computer, Smartphone, Speaker
+              'type': d['type'], 
               'isActive': d['is_active'],
             },
           )
@@ -193,28 +192,28 @@ class SpotifyService {
     );
   }
 
-  /// Resume playback (play or unpause)
+  // Resume playback
   Future<void> resume() async {
     await _ensureToken();
     final url = Uri.parse("https://api.spotify.com/v1/me/player/play");
     await http.put(url, headers: {'Authorization': 'Bearer $_accessToken'});
   }
 
-  /// Skip to next track
+  // Skip to next track
   Future<void> nextTrack() async {
     await _ensureToken();
     final url = Uri.parse("https://api.spotify.com/v1/me/player/next");
     await http.post(url, headers: {'Authorization': 'Bearer $_accessToken'});
   }
 
-  /// Skip to previous track
+  // Skip to previous track
   Future<void> previousTrack() async {
     await _ensureToken();
     final url = Uri.parse("https://api.spotify.com/v1/me/player/previous");
     await http.post(url, headers: {'Authorization': 'Bearer $_accessToken'});
   }
 
-  /// Pause playback
+  // Pause playback
   Future<void> pause() async {
     await _ensureToken();
     final url = Uri.parse("https://api.spotify.com/v1/me/player/pause");
@@ -259,7 +258,7 @@ class SpotifyService {
     );
   }
 
-  /// Get the current queue
+  // Get the current queue
   Future<List<Map<String, dynamic>>> getQueue() async {
     await _ensureToken();
     final url = Uri.parse("https://api.spotify.com/v1/me/player/queue");
@@ -287,7 +286,7 @@ class SpotifyService {
     return [];
   }
 
-  /// Toggle shuffle
+  // Toggle shuffle
   Future<void> toggleShuffle(bool enable) async {
     await _ensureToken();
     final url = Uri.parse(
@@ -296,7 +295,7 @@ class SpotifyService {
     await http.put(url, headers: {'Authorization': 'Bearer $_accessToken'});
   }
 
-  /// Set repeat mode: 'track', 'context', or 'off'
+  // Set repeat mode
   Future<void> setRepeat(String mode) async {
     await _ensureToken();
     final url = Uri.parse(
@@ -305,7 +304,7 @@ class SpotifyService {
     await http.put(url, headers: {'Authorization': 'Bearer $_accessToken'});
   }
 
-  /// Get currently playing track
+  // Get currently playing track
   Future<Map<String, dynamic>> getCurrentTrack() async {
     await _ensureToken();
     final url = Uri.parse(
@@ -322,7 +321,7 @@ class SpotifyService {
         'title': data['item']['name'],
         'artist': data['item']['artists'][0]['name'],
         'isPlaying': data['is_playing'],
-        'albumArt': data['item']['album']['images'][0]['url'], // cover art
+        'albumArt': data['item']['album']['images'][0]['url'], 
         'progressMs': data['progress_ms'] ?? 0,
         'durationMs': data['item']['duration_ms'] ?? 0,
       };

@@ -176,12 +176,13 @@ class _SpotifyPlaylistsPageState extends State<SpotifyPlaylistsPage> {
                         ),
                         onPressed: () async {
                           String nextRepeat;
-                          if (repeat == 'off')
+                          if (repeat == 'off') {
                             nextRepeat = 'context';
-                          else if (repeat == 'context')
+                          } else if (repeat == 'context') {
                             nextRepeat = 'track';
-                          else
+                          } else {
                             nextRepeat = 'off';
+                          }
                           setState(() => repeat = nextRepeat);
                           await spotify.setRepeat(nextRepeat);
                         },

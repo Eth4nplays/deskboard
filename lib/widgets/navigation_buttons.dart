@@ -86,7 +86,9 @@ class NavigationButtons extends StatelessWidget {
       case 1:
         exit(0);
       case 2:
-        _showBrightnessControls(context);
+        if (context.mounted) {
+          _showBrightnessControls(context);
+        }
         break;
       case 3:
         // Cancel
@@ -164,7 +166,6 @@ class NavigationButtons extends StatelessWidget {
 
   void _setBrightnessValue(int value) async {
     if (!Platform.isLinux) {
-      print('Brightness control is only supported on Linux');
       return;
     }
 
@@ -174,10 +175,12 @@ class NavigationButtons extends StatelessWidget {
       final result = await Process.run('bash', ['-c', command]);
 
       if (result.exitCode != 0) {
-        print('Error setting brightness: ${result.stderr}');
+
       }
     } catch (e) {
-      print('Error executing brightness command: $e');
+      SnackBar(
+        content: Text('Failed to set brightness: $e'),
+      );
     }
   }
 }

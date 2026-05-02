@@ -83,9 +83,6 @@ class _TodoListState extends State<TodoList> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Calculate remaining height for the task list dynamically
-        final availableHeight = constraints.maxHeight - 140;
-        // 140 accounts for padding, header, input row, and spacing
 
         return Center(
           child: ConstrainedBox(
@@ -108,8 +105,7 @@ class _TodoListState extends State<TodoList> {
                     ),
                   ),
                   const SizedBox(height: 16),
-
-                  // Task list (scrollable)
+                  // Task list
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.all(12),
@@ -173,7 +169,7 @@ class _TodoListState extends State<TodoList> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Input row
+                  // Input
                   Row(
                     children: [
                       Expanded(
@@ -183,14 +179,14 @@ class _TodoListState extends State<TodoList> {
                           style: TextStyle(
                             color:
                                 colorScheme
-                                    .onSecondaryContainer, // text you type will be this color
+                                    .onSecondaryContainer, 
                           ),
                           decoration: InputDecoration(
                             hintText: "Add new",
                             hintStyle: TextStyle(
                               color:
                                   colorScheme
-                                      .onSurfaceVariant, // hint text color
+                                      .onSurfaceVariant,
                             ),
                             filled: true,
                             fillColor: colorScheme.secondaryContainer,
@@ -209,8 +205,8 @@ class _TodoListState extends State<TodoList> {
 
                       const SizedBox(width: 8),
                       SizedBox(
-                        width: 35, // desired width
-                        height: 35, // desired height
+                        width: 35,
+                        height: 35, 
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: colorScheme.primary,
@@ -220,7 +216,7 @@ class _TodoListState extends State<TodoList> {
                             ),
                             padding:
                                 EdgeInsets
-                                    .zero, // remove internal padding if needed
+                                    .zero,
                           ),
                           onPressed: () => _addTask(_controller.text),
                           child: const Text('+'),

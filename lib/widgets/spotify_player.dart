@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../services/spotify_service.dart'; // import your service
+import '../services/spotify_service.dart';
 import 'dart:async';
 
 class SpotifyPlayer extends StatefulWidget {
