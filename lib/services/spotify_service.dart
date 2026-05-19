@@ -273,7 +273,9 @@ class SpotifyService {
           .map(
             (track) => {
               'title': track['name'],
-              'artist': track['artists'][0]['name'],
+              'artist': (data['item']['artists'] as List)
+    .map((artist) => artist['name'])
+    .join(', '),
               'albumArt':
                   (track['album']['images'] as List).isNotEmpty
                       ? track['album']['images'][0]['url']
