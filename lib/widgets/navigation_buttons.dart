@@ -78,7 +78,17 @@ class NavigationButtons extends StatelessWidget {
             ],
           ),
         ),
-        const PopupMenuItem(value: 3, child: Text('Cancel')),
+        PopupMenuItem(
+          value: 3,
+          child: Row(
+            children: const [
+              Icon(Icons.settings_power_outlined, size: 25),
+              SizedBox(width: 8),
+              Text('Shutdown'),
+            ],
+          ),
+        ),
+        const PopupMenuItem(value: 4, child: Text('Cancel')),
       ],
     );
 
@@ -91,6 +101,11 @@ class NavigationButtons extends StatelessWidget {
         }
         break;
       case 3:
+      if (context.mounted) {
+          _shutdown(context);
+        }
+        break;
+      case 4:
         // Cancel
         break;
     }
@@ -180,6 +195,26 @@ class NavigationButtons extends StatelessWidget {
     } catch (e) {
       SnackBar(
         content: Text('Failed to set brightness: $e'),
+      );
+    }
+  }
+
+  void _shutdown(BuildContext context) async {
+    if (!Platform.isLinux) {
+      return;
+    }
+
+    try {
+      final command = 'shutdown now';
+
+      final result = await Process.run('bash', ['-c', command]);
+
+      if (result.exitCode != 0) {
+
+      }
+    } catch (e) {
+      SnackBar(
+        content: Text('Failed to shutdown: $e'),
       );
     }
   }
