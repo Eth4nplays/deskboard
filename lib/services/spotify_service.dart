@@ -321,7 +321,9 @@ class SpotifyService {
       final data = jsonDecode(response.body);
       return {
         'title': data['item']['name'],
-        'artist': data['item']['artists'][0]['name'],
+        'artist': (data['item']['artists'] as List)
+    .map((artist) => artist['name'])
+    .join(', '),
         'isPlaying': data['is_playing'],
         'albumArt': data['item']['album']['images'][0]['url'], 
         'progressMs': data['progress_ms'] ?? 0,
