@@ -31,6 +31,7 @@ class SpotifyLyrics extends StatefulWidget {
 class _SpotifyLyricsState extends State<SpotifyLyrics> {
   List<LyricLine> _lyrics = [];
   bool _isLoading = false;
+  int _lastIndex = -1;
 
   final ItemScrollController _itemScrollController = ItemScrollController();
 
@@ -103,12 +104,15 @@ class _SpotifyLyricsState extends State<SpotifyLyrics> {
   void _scrollToCurrentLyric() {
     int index = _getCurrentIndex();
     if (index >= 0 && _itemScrollController.isAttached) {
+      if ((index-_lastIndex).abs() > 5) {
       _itemScrollController.scrollTo(
         index: index,
-        duration: const Duration(milliseconds: 400),
+        duration: const Duration(milliseconds: 1),
         curve: Curves.easeInOutCubic,
         alignment: 0.5,
       );
+      }
+      _lastIndex = index;
     }
   }
 
@@ -143,7 +147,7 @@ class _SpotifyLyricsState extends State<SpotifyLyrics> {
           duration: const Duration(milliseconds: 300),
           opacity: opacity,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
             child: Text(
               lyric.text,
               textAlign: TextAlign.center,
