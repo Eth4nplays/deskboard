@@ -112,7 +112,7 @@ class _SpotifyLyricsState extends State<SpotifyLyrics> {
         index: index,
         duration: Duration(milliseconds: isFar ? 1 : 300),
         curve: Curves.easeInOutCubic,
-        alignment: 0.5,
+        alignment: 0.3,
       );
       
       _lastIndex = index;
