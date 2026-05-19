@@ -102,19 +102,23 @@ class _SpotifyLyricsState extends State<SpotifyLyrics> {
   }
 
   void _scrollToCurrentLyric() {
-    int index = _getCurrentIndex();
-    if (index >= 0 && _itemScrollController.isAttached) {
-      if ((index-_lastIndex).abs() > 5) {
+  int index = _getCurrentIndex();
+  if (index >= 0 && _itemScrollController.isAttached) {
+    if (index != _lastIndex) {
+      // Check if the jump distance is greater than 5 lines
+      bool isFar = (index - _lastIndex).abs() > 5;
+
       _itemScrollController.scrollTo(
         index: index,
-        duration: const Duration(milliseconds: 1),
+        duration: Duration(milliseconds: isFar ? 1 : 300),
         curve: Curves.easeInOutCubic,
         alignment: 0.5,
       );
-      }
+      
       _lastIndex = index;
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {
