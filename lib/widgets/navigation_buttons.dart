@@ -82,9 +82,9 @@ class NavigationButtons extends StatelessWidget {
           value: 3,
           child: Row(
             children: const [
-              Icon(Icons.settings_power_outlined, size: 25),
+              Icon(Icons.power_settings_new, size: 25),
               SizedBox(width: 8),
-              Text('Shutdown'),
+              Text('Power'),
             ],
           ),
         ),
@@ -101,7 +101,7 @@ class NavigationButtons extends StatelessWidget {
         }
         break;
       case 3:
-      if (context.mounted) {
+        if (context.mounted) {
           _shutdown(context);
         }
         break;
@@ -189,34 +189,68 @@ class NavigationButtons extends StatelessWidget {
 
       final result = await Process.run('bash', ['-c', command]);
 
-      if (result.exitCode != 0) {
-
-      }
+      if (result.exitCode != 0) {}
     } catch (e) {
-      SnackBar(
-        content: Text('Failed to set brightness: $e'),
-      );
+      SnackBar(content: Text('Failed to set brightness: $e'));
     }
   }
 
   void _shutdown(BuildContext context) async {
-    if (!Platform.isLinux) {
-      return;
-    }
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Container(
+              height: 260,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Power Options',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
 
-    try {
-      final command = 'shutdown now';
+                  // Buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.power_settings_new, size: 40),
+                        onPressed: () async {
+                          if (!Platform.isLinux) {
+                            return;
+                          }
 
-      final result = await Process.run('bash', ['-c', command]);
+                          try {
+                            final command = 'shutdown now';
 
-      if (result.exitCode != 0) {
+                            final result = await Process.run('bash', [
+                              '-c',
+                              command,
+                            ]);
 
-      }
-    } catch (e) {
-      SnackBar(
-        content: Text('Failed to shutdown: $e'),
-      );
-    }
+                            if (result.exitCode != 0) {}
+                          } catch (e) {
+                            SnackBar(content: Text('Failed to shutdown: $e'));
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }
 
