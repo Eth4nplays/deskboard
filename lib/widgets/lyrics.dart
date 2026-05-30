@@ -52,65 +52,86 @@ class _SpotifyLyricsState extends State<SpotifyLyrics> {
     }
   }
 
+  List<String> generateTitleVariations(String title) {
+    final variations = <String>{title};
+
+    final dashMatch = RegExp(r'^(.+?)\s*-\s*(.+)$').firstMatch(title);
+    if (dashMatch != null) {
+      variations.add(
+        '${dashMatch.group(1)!.trim()} (${dashMatch.group(2)!.trim()})',
+      );
+    }
+
+    final bracketMatch = RegExp(r'^(.+?)\s*\((.+)\)$').firstMatch(title);
+    if (bracketMatch != null) {
+      variations.add(
+        '${bracketMatch.group(1)!.trim()} - ${bracketMatch.group(2)!.trim()}',
+      );
+    }
+
+    return variations.toList();
+  }
+
+  Future<List<LyricLine>> _tryFetchLyrics(String artist, String title) async {
+    final url = Uri.parse(
+      'https://lrclib.net/api/get'
+      '?artist_name=${Uri.encodeComponent(artist)}'
+      '&track_name=${Uri.encodeComponent(title)}',
+    );
+
+    final response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      throw Exception('Lyrics not found');
+    }
+
+    final data = jsonDecode(response.body);
+    final String syncedLyrics = data['syncedLyrics'] ?? '';
+
+    final regExp = RegExp(r"\[(\d+):(\d+\.\d+)\](.*)");
+    final matches = regExp.allMatches(syncedLyrics);
+
+    return matches.map((m) {
+      final min = int.parse(m.group(1)!);
+      final sec = double.parse(m.group(2)!);
+
+      return LyricLine(
+        Duration(milliseconds: (min * 60 * 1000 + sec * 1000).toInt()),
+        m.group(3)!.trim(),
+      );
+    }).toList();
+  }
+
   Future<void> _fetchLyrics() async {
     setState(() {
       _isLoading = true;
       _lyrics = [];
     });
     try {
-      final url = Uri.parse(
-        'https://lrclib.net/api/get?artist_name=${Uri.encodeComponent(widget.artist)}&track_name=${Uri.encodeComponent(widget.title)}',
-      );
-      final response = await http.get(url);
+      final artists = <String>{
+        widget.artist,
+        widget.artist.split(',').first.trim(),
+      };
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final String syncedLyrics = data['syncedLyrics'] ?? "";
+      final titles = generateTitleVariations(widget.title);
 
-        RegExp regExp = RegExp(r"\[(\d+):(\d+\.\d+)\](.*)");
-        final syncedMatches = regExp.allMatches(syncedLyrics);
+      for (final artist in artists) {
+        for (final title in titles) {
+          try {
+            _lyrics = await _tryFetchLyrics(artist, title);
 
-        _lyrics =
-            syncedMatches.map((m) {
-              final min = m.group(1)!;
-              final sec = m.group(2)!;
-              final time = Duration(
-                milliseconds:
-                    (int.parse(min) * 60 * 1000 + double.parse(sec) * 1000)
-                        .toInt(),
-              );
-              return LyricLine(time, m.group(3)!.trim());
-            }).toList();
+            if (_lyrics.isNotEmpty) {
+              break;
+            }
+          } catch (_) {}
+        }
+
+        if (_lyrics.isNotEmpty) {
+          break;
+        }
       }
     } catch (e) {
-      try {
-        final url = Uri.parse(
-          'https://lrclib.net/api/get?artist_name=${Uri.encodeComponent(widget.artist.split(', ')[0])}&track_name=${Uri.encodeComponent(widget.title)}',
-        );
-        final response = await http.get(url);
-
-        if (response.statusCode == 200) {
-          final data = jsonDecode(response.body);
-          final String syncedLyrics = data['syncedLyrics'] ?? "";
-
-          RegExp regExp = RegExp(r"\[(\d+):(\d+\.\d+)\](.*)");
-          final syncedMatches = regExp.allMatches(syncedLyrics);
-
-          _lyrics =
-              syncedMatches.map((m) {
-                final min = m.group(1)!;
-                final sec = m.group(2)!;
-                final time = Duration(
-                  milliseconds:
-                      (int.parse(min) * 60 * 1000 + double.parse(sec) * 1000)
-                          .toInt(),
-                );
-                return LyricLine(time, m.group(3)!.trim());
-              }).toList();
-        }
-      } catch (e) {
-        _lyrics = [];
-      }
+      _lyrics = [];
     }
     if (mounted) {
       setState(() => _isLoading = false);
