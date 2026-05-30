@@ -83,7 +83,34 @@ class _SpotifyLyricsState extends State<SpotifyLyrics> {
             }).toList();
       }
     } catch (e) {
-      _lyrics = [];
+      try {
+        final url = Uri.parse(
+          'https://lrclib.net/api/get?artist_name=${Uri.encodeComponent(widget.artist)}&track_name=${Uri.encodeComponent((widget.title).split(', ')[0])}',
+        );
+        final response = await http.get(url);
+
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          final String syncedLyrics = data['syncedLyrics'] ?? "";
+
+          RegExp regExp = RegExp(r"\[(\d+):(\d+\.\d+)\](.*)");
+          final syncedMatches = regExp.allMatches(syncedLyrics);
+
+          _lyrics =
+              syncedMatches.map((m) {
+                final min = m.group(1)!;
+                final sec = m.group(2)!;
+                final time = Duration(
+                  milliseconds:
+                      (int.parse(min) * 60 * 1000 + double.parse(sec) * 1000)
+                          .toInt(),
+                );
+                return LyricLine(time, m.group(3)!.trim());
+              }).toList();
+        }
+      } catch (e) {
+        _lyrics = [];
+      }
     }
     if (mounted) {
       setState(() => _isLoading = false);
@@ -102,23 +129,23 @@ class _SpotifyLyricsState extends State<SpotifyLyrics> {
   }
 
   void _scrollToCurrentLyric() {
-  int index = _getCurrentIndex();
-  if (index >= 0 && _itemScrollController.isAttached) {
-    if (index != _lastIndex) {
-      // Check if the jump distance is greater than 5 lines
-      bool isFar = (index - _lastIndex).abs() > 5;
+    int index = _getCurrentIndex();
+    if (index >= 0 && _itemScrollController.isAttached) {
+      if (index != _lastIndex) {
+        // Check if the jump distance is greater than 5 lines
+        bool isFar = (index - _lastIndex).abs() > 5;
 
-      _itemScrollController.scrollTo(
-        index: index,
-        duration: Duration(milliseconds: isFar ? 1 : 300),
-        curve: Curves.easeInOutCubic,
-        alignment: 0.3,
-      );
-      
-      _lastIndex = index;
+        _itemScrollController.scrollTo(
+          index: index,
+          duration: Duration(milliseconds: isFar ? 1 : 300),
+          curve: Curves.easeInOutCubic,
+          alignment: 0.3,
+        );
+
+        _lastIndex = index;
+      }
     }
   }
-}
 
   @override
   Widget build(BuildContext context) {
