@@ -85,7 +85,7 @@ class _SpotifyLyricsState extends State<SpotifyLyrics> {
     } catch (e) {
       try {
         final url = Uri.parse(
-          'https://lrclib.net/api/get?artist_name=${Uri.encodeComponent(widget.artist)}&track_name=${Uri.encodeComponent((widget.title).split(', ')[0])}',
+          'https://lrclib.net/api/get?artist_name=${Uri.encodeComponent(widget.artist.split(', ')[0])}&track_name=${Uri.encodeComponent(widget.title)}',
         );
         final response = await http.get(url);
 
