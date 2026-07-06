@@ -202,13 +202,13 @@ class NavigationButtons extends StatelessWidget {
     }
   }
 Future<void> openChromiumStream() async {
-  const url = "http://127.0.0.1:8080/stream?token=umapyoi";
+  const url = "http://192.168.1.30:8080/stream?token=umapyoi";
 
   await Process.run(
     "bash",
     [
       "-c",
-      "chromium --kiosk --start-fullscreen --app=$url"
+      "chromium --app=$url --start-fullscreen"
     ],
   );
 }
