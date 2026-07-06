@@ -38,6 +38,13 @@ class NavigationButtons extends StatelessWidget {
         ),
         const SizedBox(width: 18),
         _NavButton(
+          icon: Icons.display_settings_outlined,
+          onPressed: () {
+            openChromiumStream();
+          },
+        ),
+        const SizedBox(width: 18),
+        _NavButton(
           icon: Icons.settings_outlined,
           onPressed: () => _showSettingsMenu(context),
         ),
@@ -194,7 +201,17 @@ class NavigationButtons extends StatelessWidget {
       SnackBar(content: Text('Failed to set brightness: $e'));
     }
   }
+Future<void> openChromiumStream() async {
+  const url = "http://127.0.0.1:8080/stream?token=umapyoi";
 
+  await Process.run(
+    "bash",
+    [
+      "-c",
+      "chromium --kiosk --start-fullscreen --app=$url"
+    ],
+  );
+}
   void _shutdown(BuildContext context) async {
     showModalBottomSheet(
       context: context,
