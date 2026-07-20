@@ -259,6 +259,27 @@ Future<void> openChromiumStream() async {
                           }
                         },
                       ),
+                      IconButton(
+                        icon: const Icon(Icons.restart_alt, size: 40),
+                        onPressed: () async {
+                          if (!Platform.isLinux) {
+                            return;
+                          }
+
+                          try {
+                            final command = 'reboot now';
+
+                            final result = await Process.run('bash', [
+                              '-c',
+                              command,
+                            ]);
+
+                            if (result.exitCode != 0) {}
+                          } catch (e) {
+                            SnackBar(content: Text('Failed to reboot: $e'));
+                          }
+                        },
+                      ),
                     ],
                   ),
                 ],
