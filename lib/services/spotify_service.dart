@@ -105,26 +105,44 @@ class SpotifyService {
 
   // Refresh access token
   Future<void> refreshAccessToken() async {
-    if (_refreshToken == null) return;
-
-    final url = Uri.parse("https://accounts.spotify.com/api/token");
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization':
-            'Basic ${base64Encode(utf8.encode('$clientId:$clientSecret'))}',
-      },
-      body: {'grant_type': 'refresh_token', 'refresh_token': _refreshToken!},
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception("Failed to refresh token: ${response.body}");
-    }
-
-    final data = jsonDecode(response.body);
-    _saveTokens(data, isRefresh: true);
+  if (_refreshToken == null) {
+    await authenticate();
+    return;
   }
+
+  final url = Uri.parse("https://accounts.spotify.com/api/token");
+  final response = await http.post(
+    url,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization':
+          'Basic ${base64Encode(utf8.encode('$clientId:$clientSecret'))}',
+    },
+    body: {
+      'grant_type': 'refresh_token',
+      'refresh_token': _refreshToken!,
+    },
+  );
+
+  if (response.statusCode != 200) {
+    // Refresh token is no longer valid
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove("spotify_access_token");
+    await prefs.remove("spotify_refresh_token");
+    await prefs.remove("spotify_expiry");
+
+    _accessToken = null;
+    _refreshToken = null;
+    _expiryTime = null;
+
+    // Ask the user to log in again
+    await authenticate();
+    return;
+  }
+
+  final data = jsonDecode(response.body);
+  _saveTokens(data, isRefresh: true);
+}
 
   void _saveTokens(Map<String, dynamic> data, {bool isRefresh = false}) async {
     _accessToken = data['access_token'];
@@ -144,12 +162,20 @@ class SpotifyService {
 
   // Ensure valid access token
   Future<void> _ensureToken() async {
+  try {
     if (_accessToken == null) {
       await authenticate();
-    } else if (_expiryTime != null && DateTime.now().isAfter(_expiryTime!)) {
+    } else if (_expiryTime != null &&
+        DateTime.now().isAfter(_expiryTime!)) {
       await refreshAccessToken();
     }
+  } catch (e) {
+    _accessToken = null;
+    _refreshToken = null;
+    _expiryTime = null;
+    rethrow; // or handle it gracefully
   }
+}
 
   Future<List<Map<String, dynamic>>> getDevices() async {
     await _ensureToken();
